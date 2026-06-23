@@ -1,0 +1,28 @@
+[package]
+name = "htmlr"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "High-level HTML helpers for extracting, transforming, and manipulating HTML content."
+keywords = ["html","DOM","parsing"]
+homepage = "https://github.com/jeremychone/rust-htmlr"
+repository = "https://github.com/jeremychone/rust-htmlr"
+
+[lib]
+doctest = false # Re-enable if following best practices
+
+[lints.rust]
+unsafe_code = "forbid"
+# unused = { level = "allow", priority = -1 } # For exploratory dev.
+
+[dependencies]
+# -- Scraper
+scraper = "0.27"
+ego-tree = "0.11"
+# -- Other html utils
+html-escape = "0.2.13"
+# -- Json
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# -- Others
+derive_more = {version = "2", features = ["from", "display"] }
