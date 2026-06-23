@@ -1,3 +1,5 @@
+#![doc = include_str!("../../docs/rustdoc/slimr.md")]
+
 // region:    --- Modules
 
 mod support;

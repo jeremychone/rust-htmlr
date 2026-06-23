@@ -1,3 +1,5 @@
+#![doc = include_str!("../docs/rustdoc/md.md")]
+
 // region:    --- Modules
 
 use crate::error::{Error, Result};

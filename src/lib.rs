@@ -1,10 +1,12 @@
+#![doc = include_str!("../docs/rustdoc/lib.md")]
+
 // region:    --- Modules
 
-mod elem;
-mod error;
-mod md;
-mod selector;
-mod slimr;
+pub mod elem;
+pub mod error;
+pub mod md;
+pub mod selector;
+pub mod slimr;
 
 pub use elem::*;
 pub use error::{Error, Result};

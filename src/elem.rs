@@ -1,3 +1,5 @@
+#![doc = include_str!("../docs/rustdoc/elem.md")]
+
 use serde::Serialize;
 use std::collections::HashMap;
 
