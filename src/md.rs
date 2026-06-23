@@ -21,9 +21,7 @@ pub fn to_md(html_content: &str) -> Result<String> {
 		..Default::default()
 	};
 	let converter = htmd::HtmlToMarkdown::builder().options(options).build();
-	let res = converter
-		.convert(html_content)
-		.map_err(|err| Error::custom_from_err(err))?;
+	let res = converter.convert(html_content).map_err(Error::custom_from_err)?;
 	Ok(res)
 }
 
