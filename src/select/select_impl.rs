@@ -333,11 +333,11 @@ mod tests {
 		assert_eq!(pre_nodes.len(), 1);
 		assert_eq!(
 			pre_nodes[0].text.as_deref(),
-			Some("            Untrimmed  \n            ")
+			Some("            Untrimmed\n            ")
 		);
 		assert_eq!(
 			pre_nodes[0].inner_html.as_deref(),
-			Some("            Untrimmed  \n            ")
+			Some("            Untrimmed\n            ")
 		);
 
 		// -- Exec & Check - Empty button

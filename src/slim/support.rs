@@ -6,8 +6,9 @@ use scraper::ElementRef;
 
 pub(super) const TAGS_TO_REMOVE: &[&str] = &["script", "link", "style", "svg", "base"];
 
-pub(super) const REMOVABLE_EMPTY_TAGS: &[&str] =
-	&["div", "span", "p", "i", "b", "em", "strong", "section", "article", "header", "footer", "nav", "aside"];
+pub(super) const REMOVABLE_EMPTY_TAGS: &[&str] = &[
+	"div", "span", "p", "i", "b", "em", "strong", "section", "article", "header", "footer", "nav", "aside",
+];
 
 pub(super) const META_PROPERTY_KEYWORDS: &[&str] = &["title", "url", "image", "description"];
 
@@ -49,9 +50,7 @@ pub(super) fn should_keep_meta(element: ElementRef) -> bool {
 	if let Some(prop_value) = element.value().attr("property") {
 		let value_lower = prop_value.to_lowercase();
 		// Check if the property value contains any of the relevant keywords
-		META_PROPERTY_KEYWORDS
-			.iter()
-			.any(|&keyword| value_lower.contains(keyword))
+		META_PROPERTY_KEYWORDS.iter().any(|&keyword| value_lower.contains(keyword))
 	} else {
 		// No 'property' attribute found
 		false
