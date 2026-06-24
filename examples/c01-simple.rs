@@ -1,20 +1,25 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-	let fx_html = r#"
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<meta charset="utf-8">
-		<link rel="icon" href="favicon.ico">
-	</head>
-	<body>
-		<p>Content</p>
-	</body>
-	</html>
-	"#;
+	use htmlr::{Elem, SlimOptions, decode_html_entities, select, slim, to_md};
 
-	let slim = htmlr::slim(fx_html, htmlr::SlimOptions::default().with_indent(2))?;
+	let html = r#"<html><head></head><body><p>Hello &amp; welcome!</p>
+    <a class="blink" style="background: red" href="https://example.com">good&nbsp;link</a><script>some_stuff()</script></body></html>"#;
 
-	println!("Slim (formatted):\n\n{slim}");
+	// clean and slim
+	let slimmed = slim(html, SlimOptions::from_indent(2))?;
+	println!("=== Slimmed version `slim(...)`:\n{slimmed}");
+
+	// select all of the `<a>` tags
+	let elems: Vec<Elem> = select(&slimmed, ["a"])?;
+	println!("\n=== <a> count `select(...)`: {}", elems.len());
+
+	// into markdown
+	let markdown = to_md(&slimmed)?;
+	println!("\n=== Markdown `to_md(...)`:\n{markdown}");
+
+	// decoding a html text
+	let txt = "good&nbsp;link";
+	let decoded = decode_html_entities(txt);
+	println!("\n=== decode  `decode_html_entities(\"{txt}\")`:\n{decoded}");
 
 	Ok(())
 }

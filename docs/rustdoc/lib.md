@@ -2,27 +2,65 @@
 
 A collection of utilities for cleaning, transforming, and converting HTML content.
 
+## Quick Overview
+
+(examples/c01-simple.rs)
+```rust
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+	use htmlr::{Elem, SlimOptions, decode_html_entities, select, slim, to_md};
+
+	let html = r#"<html><head></head><body><p>Hello &amp; welcome!</p>
+    <a class="blink" style="background: red" href="https://example.com">good&nbsp;link</a><script>some_stuff()</script></body></html>"#;
+
+	// clean and slim
+	let slimmed = slim(html, SlimOptions::from_indent(2))?;
+	println!("=== Slimmed version `slim(...)`:\n{slimmed}");
+
+	// select all of the `<a>` tags
+	let elems: Vec<Elem> = select(&slimmed, ["a"])?;
+	println!("\n=== <a> count `select(...)`: {}", elems.len());
+
+	// into markdown
+	let markdown = to_md(&slimmed)?;
+	println!("\n=== Markdown `to_md(...)`:\n{markdown}");
+
+	// decoding a html text
+	let txt = "good&nbsp;link";
+	let decoded = decode_html_entities(txt);
+	println!("\n=== decode  `decode_html_entities(\"{txt}\")`:\n{decoded}");
+
+	Ok(())
+}
+```
+
+Will output: 
+
+```
+=== Slimmed version `slim(...)`:
+<body>
+  <p>Hello & welcome!</p>
+  <a class="blink" href="https://example.com">good link</a>
+</body>
+
+=== <a> count `select(...)`: 1
+
+=== Markdown `to_md(...)`:
+Hello & welcome!
+
+[good link](https://example.com)
+
+=== decode  `decode_html_entities("good&nbsp;link")`:
+good link
+```
+
 ## Key Features
 
-- **HTML cleaning** – `slim` removes non-content elements (scripts, styles, comments, empty tags) and filters attributes, leaving a clean HTML document.
-- **CSS selection** – `select` queries HTML content with CSS selectors and returns a flat list of `Elem` items.
-- **Flexible input** – `select` accepts both raw strings and pre-parsed documents via `HtmlContent` and `HtmlParsed`.
-- **Markdown conversion** – `to_md` converts HTML into Markdown using the [htmd](https://crates.io/crates/htmd) library.
-- **Error handling** – custom `Error` type and `Result` alias for robust error propagation.
-
-## Quick Start
-
-```rust
-use htmlr::{slim, select, Elem};
-
-let html = r#"<html><head><title>Demo</title></head>
-    <body><p>Hello</p><a href="url">link</a></body></html>"#;
-
-let clean = slim(html, SlimOptions::default())?;
-let items: Vec<Elem> = select(&clean, ["p", "a"])?;
-
-assert_eq!(items.len(), 2);
-```
+- **HTML cleaning** – `slim` strips non-content elements and filters attributes.
+- **CSS selection** – `select` extracts elements by CSS selector.
+- **Markdown conversion** – `to_md` turns HTML into Markdown.
+- **HTML entity decoding** – `decode_html_entities` unescapes HTML entities.
+- **Error handling** – custom `Error` type and `Result` alias.
 
 ## Crate Status
 
