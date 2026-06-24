@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	println!("\n=== <a> count `select(...)`: {}", elems.len());
 
 	// into markdown
-	let markdown = to_md(&slimmed)?;
+	let markdown = to_md(&slimmed, None)?;
 	println!("\n=== Markdown `to_md(...)`:\n{markdown}");
 
 	// decoding a html text
