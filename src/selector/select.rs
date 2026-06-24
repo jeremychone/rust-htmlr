@@ -1,4 +1,4 @@
-use crate::{Elem, Error, Result};
+use crate::{Elem, Error, HtmlContent, Result};
 use scraper::{Html, Selector};
 
 /// Selects HTML elements based on a list of CSS selectors and returns them as a list of `Elem`.
@@ -7,7 +7,7 @@ use scraper::{Html, Selector};
 ///
 /// # Arguments
 ///
-/// * `html_content` - A string slice containing the HTML content to parse.
+/// * `html_content` - The HTML content, accepting any type that implements `Into<HtmlContent<'_>>`, such as a raw string (`&str`) or a pre-parsed document (`&HtmlParsed`).
 /// * `selectors` - An iterator of string-like items, each representing a CSS selector.
 ///
 /// # Returns
@@ -15,7 +15,7 @@ use scraper::{Html, Selector};
 /// A `Result` containing:
 /// - `Ok(Vec<Elem>)`: A vector of `Elem` objects representing the selected elements.
 /// - `Err(Error)`: An error if parsing the HTML or the combined selector fails.
-pub fn select<S>(html_content: &str, selectors: S) -> Result<Vec<Elem>>
+pub fn select<'a, S>(html_content: impl Into<HtmlContent<'a>>, selectors: S) -> Result<Vec<Elem>>
 where
 	S: IntoIterator,
 	S::Item: AsRef<str>,
@@ -43,10 +43,18 @@ where
 	})?;
 
 	// -- Parse and select
-	let html = Html::parse_document(html_content);
+	let html_content: HtmlContent = html_content.into();
+	let html_owned;
+	let html_ref: &Html = match &html_content {
+		HtmlContent::Source(s) => {
+			html_owned = Html::parse_document(s);
+			&html_owned
+		}
+		HtmlContent::Parsed(doc) => doc,
+	};
 
 	let mut els = Vec::new();
-	for element_ref in html.select(&css_selector) {
+	for element_ref in html_ref.select(&css_selector) {
 		els.push(Elem::from_element_ref(element_ref));
 	}
 
@@ -350,6 +358,35 @@ mod tests {
 		assert_eq!(button_nodes.len(), 1);
 		assert_eq!(button_nodes[0].text, None);
 		assert_eq!(button_nodes[0].inner_html, None);
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_selector_select_with_preparsed_html() -> Result<()>{
+		// -- Setup & Fixtures
+		let html_content = r#"
+			<h1>Preparsed Title</h1>
+			<p>First paragraph.</p>
+			<p class="second">Second paragraph.</p>
+		"#;
+		let doc = scraper::Html::parse_document(html_content);
+
+		// -- Exec
+		let els = select(&doc, ["p"])?;
+
+		// -- Check
+		assert_eq!(els.len(), 2);
+		assert_eq!(els[0].tag, "p");
+		assert_eq!(els[0].text.as_deref(), Some("First paragraph."));
+		assert_eq!(els[1].tag, "p");
+		assert_eq!(els[1].text.as_deref(), Some("Second paragraph."));
+
+		// -- Exec & Check (multiple calls on same parsed doc)
+		let h1_els = select(&doc, ["h1"])?;
+		assert_eq!(h1_els.len(), 1);
+		assert_eq!(h1_els[0].tag, "h1");
+		assert_eq!(h1_els[0].text.as_deref(), Some("Preparsed Title"));
 
 		Ok(())
 	}

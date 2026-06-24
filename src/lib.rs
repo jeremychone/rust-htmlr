@@ -7,11 +7,13 @@ pub mod error;
 pub mod md;
 pub mod selector;
 pub mod slimr;
+pub mod html_content;
 
 pub use elem::*;
 pub use error::{Error, Result};
 pub use md::to_md;
 pub use selector::*;
 pub use slimr::*;
+pub use html_content::{HtmlContent, HtmlParsed};
 
 // endregion: --- Modules
