@@ -7,10 +7,10 @@
 ### `htmlr::slim`
 
 ```rust
-pub fn slim(html_content: &str) -> Result<String>
+pub fn slim(html_content: &str, options: impl Into<SlimOptions>) -> Result<String>
 ```
 
-Slims an HTML page by removing non-content elements (scripts, styles, comments, empty tags) and filtering attributes, preserving only essential head tags and body content.
+Slims an HTML page by removing non-content elements (scripts, styles, comments, empty tags) and filtering attributes, preserving only essential head tags and body content. The optional `options` parameter (pass `None` for defaults) controls formatting such as indentation.
 
 - Removes `<script>`, `<link>`, `<style>`, `<svg>`, `<base>`, HTML comments, empty whitespace text nodes, and specific tags (e.g., `<div>`, `<span>`, `<p>`) that become effectively empty after processing children.
 - Drops empty `<head>` elements. Keeps `<title>` and certain `<meta>` tags whose `property` attribute contains "title", "url", "image", or "description".
@@ -95,7 +95,7 @@ let html = r#"
 "#;
 
 // Slim away non-content elements and attributes
-let cleaned = slim(html)?;
+let cleaned = slim(html, None)?;
 
 // Select elements matching CSS selectors from the cleaned HTML
 let elements: Vec<Elem> = select(&cleaned, ["p", "a.link"])?;

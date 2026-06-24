@@ -1,7 +1,7 @@
 # slim – HTML content cleaner
 
 ```rust
-pub fn slim(html_content: &str, options: SlimOptions) -> Result<String>
+pub fn slim(html_content: &str, options: impl Into<SlimOptions>) -> Result<String>
 ```
 
 Slims an HTML page by removing non-content elements and filtering attributes, preserving only essential head tags and body content.
