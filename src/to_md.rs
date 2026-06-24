@@ -1,20 +1,8 @@
-#![doc = include_str!("../docs/rustdoc/md.md")]
-
 // region:    --- Modules
 
 use crate::error::{Error, Result};
 
-/// Converts an HTML string to Markdown using the `htmd` crate.
-///
-/// # Arguments
-///
-/// * `html_content` - A string slice containing the HTML content.
-///
-/// # Returns
-///
-/// A `Result<String>` which is:
-/// - `Ok(String)` containing the Markdown output.
-/// - `Err` if conversion fails.
+#[doc = include_str!("../docs/rustdoc/to_md.md")]
 pub fn to_md(html_content: &str) -> Result<String> {
 	let options = htmd::options::Options {
 		bullet_list_marker: htmd::options::BulletListMarker::Dash,

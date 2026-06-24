@@ -8,37 +8,7 @@ use super::support::{
 	is_string_effectively_empty, remove_empty_lines, should_keep_meta,
 };
 
-/// Decodes HTML entities (e.g., `&lt;` becomes `<`).
-/// Re-exporting from the original slimmer or using html-escape directly.
-pub fn decode_html_entities(content: &str) -> String {
-	html_escape::decode_html_entities(content).to_string()
-}
-
-/// Strips non-content elements from the provided HTML content using the `scraper` crate,
-/// preserving essential head tags, and returns the cleaned HTML as a string.
-///
-/// This function aims to replicate the behavior of `slimmer::slim` using `scraper`.
-/// It removes:
-/// - Non-visible tags like `<script>`, `<link>`, `<style>`, `<svg>`, `<base>`.
-/// - HTML comments.
-/// - Empty or whitespace-only text nodes.
-/// - Specific tags (like `<div>`, `<span>`, `<p>`, etc.) if they become effectively empty *after* processing children.
-/// - Attributes except for specific allowlists (`class`, `aria-label`, `href` outside head; `property`, `content` for relevant meta tags in head).
-///
-/// It preserves:
-/// - `<title>` tag within `<head>`.
-/// - `<meta>` tags within `<head>` if their `property` attribute matches keywords in `META_PROPERTY_KEYWORDS`.
-/// - Essential body content.
-///
-/// # Arguments
-///
-/// * `html_content` - A string slice containing the HTML content to be processed.
-///
-/// # Returns
-///
-/// A `Result<String>` which is:
-/// - `Ok(String)` containing the cleaned HTML content.
-/// - `Err` if any errors occur during processing.
+#[doc = include_str!("../../docs/rustdoc/slim.md")]
 pub fn slim(html_content: &str, options: impl Into<SlimOptions>) -> Result<String> {
 	let options = options.into();
 	let html = Html::parse_document(html_content);

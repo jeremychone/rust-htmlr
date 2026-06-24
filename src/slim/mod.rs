@@ -1,12 +1,10 @@
-#![doc = include_str!("../../docs/rustdoc/slimr.md")]
-
 // region:    --- Modules
 
-mod support;
-mod slim;
+mod slim_impl;
 mod slim_options;
+mod support;
 
-pub use slim::*;
+pub use slim_impl::*;
 pub use slim_options::*;
 
 // endregion: --- Modules

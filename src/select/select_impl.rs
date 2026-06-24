@@ -1,20 +1,7 @@
 use crate::{Elem, Error, HtmlContent, Result};
 use scraper::{Html, Selector};
 
-/// Selects HTML elements based on a list of CSS selectors and returns them as a list of `Elem`.
-/// The selectors are combined with a comma, effectively performing an "OR" match.
-/// Elements are returned in document order.
-///
-/// # Arguments
-///
-/// * `html_content` - The HTML content, accepting any type that implements `Into<HtmlContent<'_>>`, such as a raw string (`&str`) or a pre-parsed document (`&HtmlParsed`).
-/// * `selectors` - An iterator of string-like items, each representing a CSS selector.
-///
-/// # Returns
-///
-/// A `Result` containing:
-/// - `Ok(Vec<Elem>)`: A vector of `Elem` objects representing the selected elements.
-/// - `Err(Error)`: An error if parsing the HTML or the combined selector fails.
+#[doc = include_str!("../../docs/rustdoc/select.md")]
 pub fn select<'a, S>(html_content: impl Into<HtmlContent<'a>>, selectors: S) -> Result<Vec<Elem>>
 where
 	S: IntoIterator,
@@ -324,7 +311,7 @@ mod tests {
             <p>  Trimmed text here  </p>
             <div>  <span>  Inner  </span>  </div>
             <pre>
-            Untrimmed  
+            Untrimmed
             </pre>
             <button>  </button>
         "#;
@@ -363,7 +350,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_selector_select_with_preparsed_html() -> Result<()>{
+	fn test_selector_select_with_preparsed_html() -> Result<()> {
 		// -- Setup & Fixtures
 		let html_content = r#"
 			<h1>Preparsed Title</h1>

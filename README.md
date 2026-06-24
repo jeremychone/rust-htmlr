@@ -7,7 +7,8 @@ Bring high level html apis such as
 - `select(html, selectors)`
 - `decode_html_entities(content)`
 
-> ⚠️ Very early release, but it will follow SemVer.
+> ⚠️ Very early release, slow loc version as `htmlr = "=0.1.1"`
+> Will follow semver for API update after `0.2.x` and above
 
 ## Example
 
