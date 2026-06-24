@@ -1,50 +1,52 @@
-# html-helpers Public API
+# htmlr - Public API Reference
 
-[html-helpers](https://crates.io/crates/htmlr) provides high-level utilities for cleaning, transforming, and converting HTML content.
 
 ## Functions
 
-### `htmlr::slim`
+### slim
 
 ```rust
 pub fn slim(html_content: &str, options: impl Into<SlimOptions>) -> Result<String>
 ```
 
-Slims an HTML page by removing non-content elements (scripts, styles, comments, empty tags) and filtering attributes, preserving only essential head tags and body content. The optional `options` parameter (pass `None` for defaults) controls formatting such as indentation.
+- Removes `<script>`, `<link>`, `<style>`, `<svg>`, `<base>`, HTML comments, empty text nodes, and elements that become empty after processing children (e.g., `<div>`, `<span>`, `<p>`).
+- Drops empty `<head>`. Keeps `<title>` and `<meta>` whose `property` contains "title", "url", "image", or "description".
+- Filters attributes: outside `<head>`, keeps `class`, `aria-label`, `href`, `title`, `id`; inside `<head>`, keeps only `property`/`content` on meta.
+- Returns cleaned HTML `String`.
 
-- Removes `<script>`, `<link>`, `<style>`, `<svg>`, `<base>`, HTML comments, empty whitespace text nodes, and specific tags (e.g., `<div>`, `<span>`, `<p>`) that become effectively empty after processing children.
-- Drops empty `<head>` elements. Keeps `<title>` and certain `<meta>` tags whose `property` attribute contains "title", "url", "image", or "description".
-- Filters attributes: outside `<head>` keeps `class`, `aria-label`, `href`, `title`, `id`; inside `<head>` keeps only `property`/`content` on meta tags.
-
-Returns the cleaned HTML as a `String`.
-
-### `htmlr::select`
+### select
 
 ```rust
-pub fn select<S>(html_content: &str, selectors: S) -> Result<Vec<Elem>>
+pub fn select<'a, S>(html_content: impl Into<HtmlContent<'a>>, selectors: S) -> Result<Vec<Elem>>
 where
     S: IntoIterator,
     S::Item: AsRef<str>,
 ```
 
-Selects HTML elements matching a list of CSS selectors (combined with OR). Returns a `Vec<Elem>` in document order.
+- Accepts `&str`, `String`, or `HtmlParsed` as HTML source.
+- Joins selectors with `OR`. Empty selectors ignored; returns empty `Vec` if none valid.
+- Returns matched `Elem` items in document order.
 
-- Selectors are joined by commas.
-- Empty selector strings are silently ignored.
-- Returns an empty vector when no valid selectors remain.
-- Under the hood uses [`scraper`](https://crates.io/crates/scraper).
+### to_md
 
-### `htmlr::decode_html_entities`
+```rust
+pub fn to_md(html_content: &str) -> String
+```
+
+- Converts HTML to Markdown via the `htmd` crate.
+- No error return.
+
+### decode_html_entities
 
 ```rust
 pub fn decode_html_entities(content: &str) -> String
 ```
 
-Decodes HTML entities (e.g., `&lt;` → `<`). Convenient when you need to unescape attribute values or text after `slim` or `select`.
+- Decodes HTML entities (`&amp;`, `&lt;`, `&gt;`, `&#...;`, etc.) to characters.
 
 ## Types
 
-### `Elem`
+### Elem
 
 ```rust
 pub struct Elem {
@@ -55,14 +57,12 @@ pub struct Elem {
 }
 ```
 
-Represents a simplified HTML element suitable for serialization.
+- `tag`: lowercase tag name.
+- `attrs`: attribute map, `None` if no attributes.
+- `text`: aggregated visible text from descendants, `None` if empty.
+- `inner_html`: raw inner HTML, `None` if empty.
 
-- `tag`: tag name in lowercase.
-- `attrs`: key-value attribute map, or `None` when no attributes are present.
-- `text`: visible text content of the element (collected from all descendants), or `None` if effectively empty.
-- `inner_html`: raw inner HTML of the element, or `None` if effectively empty.
-
-### `Error`
+### Error
 
 ```rust
 pub enum Error {
@@ -71,40 +71,47 @@ pub enum Error {
 }
 ```
 
-- `Custom`: generic error (e.g., internal processing).
-- `SelectorParse`: invalid CSS selector syntax.
+- `Custom`: generic processing error.
+- `SelectorParse`: invalid CSS selector; `selector` field holds the failing selector, `cause` the reason.
 
-### `Result<T>`
-
-Type alias: `pub type Result<T> = Result<T, Error>;`
-
-## Example
+### Result
 
 ```rust
-use htmlr::{slim, select, Elem};
-
-let html = r#"
-<!DOCTYPE html>
-<html>
-<head><title>Test</title></head>
-<body class="page">
-    <p>Hello, World!</p>
-    <a href="https://example.com" class="link">Example</a>
-</body>
-</html>
-"#;
-
-// Slim away non-content elements and attributes
-let cleaned = slim(html, None)?;
-
-// Select elements matching CSS selectors from the cleaned HTML
-let elements: Vec<Elem> = select(&cleaned, ["p", "a.link"])?;
-assert_eq!(elements.len(), 2);
-assert_eq!(elements[0].tag, "p");
-assert_eq!(elements[0].text.as_deref(), Some("Hello, World!"));
-assert_eq!(elements[1].tag, "a");
-assert_eq!(
-    elements[1].attrs.as_ref().unwrap().get("href").map(String::as_str),
-    Some("https://example.com")
-);
+pub type Result<T> = Result<T, Error>;
 ```
+
+Type alias for `std::result::Result` with crate's `Error`.
+
+### SlimOptions
+
+```rust
+pub struct SlimOptions { /* fields */ }
+```
+
+- Builder for `slim` options.
+- `SlimOptions::default()` — returns default options.
+- `SlimOptions::from_indent(indent: usize) -> Self` — sets indentation.
+- `fn with_indent(self, indent: usize) -> Self`
+- `fn with_preserve_images(self, preserve: bool) -> Self`
+
+### HtmlContent
+
+```rust
+pub enum HtmlContent<'a> {
+    Str(&'a str),
+    Parsed(HtmlParsed),
+}
+```
+
+- Represents acceptable HTML source for `select`.
+- `From` impls: `&str`, `String`, `HtmlParsed` via `Into`.
+
+### HtmlParsed
+
+```rust
+pub struct HtmlParsed { /* private */ }
+```
+
+- Pre-parsed HTML document for repeated queries.
+- `HtmlParsed::parse_document(html: &str) -> Self`
+
