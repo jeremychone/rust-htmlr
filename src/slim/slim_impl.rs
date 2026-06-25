@@ -1,12 +1,11 @@
 use super::SlimOptions;
-use crate::error::{Error, Result};
-use ego_tree::NodeRef;
-use scraper::{ElementRef, Html, node::Node};
-
 use super::support::{
 	BLOCK_LEVEL_TAGS, REMOVABLE_EMPTY_TAGS, TAGS_TO_REMOVE, VOID_ELEMENTS, filter_and_write_attributes,
 	is_string_effectively_empty, remove_empty_lines, should_keep_meta,
 };
+use crate::error::{Error, Result};
+use ego_tree::NodeRef;
+use scraper::{ElementRef, Html, node::Node};
 
 #[doc = include_str!("../../docs/rustdoc/slim.md")]
 pub fn slim(html_content: &str, options: impl Into<SlimOptions>) -> Result<String> {
