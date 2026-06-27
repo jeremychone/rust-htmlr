@@ -18,6 +18,4 @@ pub use select::*;
 pub use slim::*;
 pub use to_md::*;
 
-// -- Explicit export for clarity
-
 // endregion: --- Modules

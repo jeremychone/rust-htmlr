@@ -1,9 +1,7 @@
-#![doc = include_str!("../docs/rustdoc/elem.md")]
-
 use serde::Serialize;
 use std::collections::HashMap;
 
-/// Represents a simplified HTML element, suitable for serialization.
+#[doc = include_str!("../docs/rustdoc/elem.md")]
 #[derive(Debug, Serialize)]
 pub struct Elem {
 	pub tag: String,
