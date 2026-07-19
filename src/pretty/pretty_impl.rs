@@ -15,7 +15,8 @@ pub struct PrettyOptions {
 
 pub fn pretty(html: &str, indent: impl Into<PrettyOptions>) -> String {
 	let options = indent.into();
-	let document = if should_parse_document(html) {
+	let is_document = should_parse_document(html);
+	let document = if is_document {
 		Html::parse_document(html)
 	} else {
 		Html::parse_fragment(html)
@@ -23,16 +24,22 @@ pub fn pretty(html: &str, indent: impl Into<PrettyOptions>) -> String {
 	let indent = " ".repeat(options.ident.into());
 	let mut output = String::new();
 
-	serialize_node(document.tree.root(), 0, &indent, &mut output);
+	serialize_node(document.tree.root(), 0, &indent, is_document, &mut output);
 
 	output
 }
 
-fn serialize_node(node: NodeRef<Node>, depth: usize, indent: &str, output: &mut String) {
+fn serialize_node(
+	node: NodeRef<Node>,
+	depth: usize,
+	indent: &str,
+	is_document: bool,
+	output: &mut String,
+) {
 	match node.value() {
 		Node::Document | Node::Fragment => {
 			for child in node.children() {
-				serialize_node(child, depth, indent, output);
+				serialize_node(child, depth, indent, is_document, output);
 			}
 		}
 		Node::Doctype(doctype) => {
@@ -69,6 +76,13 @@ fn serialize_node(node: NodeRef<Node>, depth: usize, indent: &str, output: &mut 
 		}
 		Node::Element(element) => {
 			let tag_name = element.name();
+			if !is_document && matches!(tag_name, "html" | "head" | "body") {
+				for child in node.children() {
+					serialize_node(child, depth, indent, is_document, output);
+				}
+				return;
+			}
+
 			let is_formatting = !indent.is_empty();
 			let is_block = is_formatting && is_block_element(tag_name);
 			let is_void = is_void_element(tag_name);
@@ -83,7 +97,7 @@ fn serialize_node(node: NodeRef<Node>, depth: usize, indent: &str, output: &mut 
 				output.push(' ');
 				output.push_str(name);
 				output.push_str("=\"");
-				output.push_str(&encode_double_quoted_attribute(value));
+				output.push_str(&encode_attribute_value(value));
 				output.push('"');
 			}
 			output.push('>');
@@ -95,7 +109,7 @@ fn serialize_node(node: NodeRef<Node>, depth: usize, indent: &str, output: &mut 
 			let children_start = output.len();
 			let child_depth = if is_block { depth + 1 } else { depth };
 			for child in node.children() {
-				serialize_node(child, child_depth, indent, output);
+				serialize_node(child, child_depth, indent, is_document, output);
 			}
 
 			if is_block && output[children_start..].contains('\n') {
@@ -116,6 +130,10 @@ fn serialize_node(node: NodeRef<Node>, depth: usize, indent: &str, output: &mut 
 			output.push_str("?>");
 		}
 	}
+}
+
+fn encode_attribute_value(value: &str) -> String {
+	encode_double_quoted_attribute(value).replace("&gt;", ">")
 }
 
 fn start_block(output: &mut String, depth: usize, indent: &str) {

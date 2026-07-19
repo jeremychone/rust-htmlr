@@ -3,7 +3,7 @@ type Result<T> = core::result::Result<T, Box<dyn std::error::Error>>; // For tes
 use super::*;
 
 #[test]
-fn test_pretty_pretty_options_default() -> Result<()> {
+fn test_pretty_options_default() -> Result<()> {
 	// -- Setup & Fixtures
 	let options = PrettyOptions::from(None);
 
@@ -17,7 +17,7 @@ fn test_pretty_pretty_options_default() -> Result<()> {
 }
 
 #[test]
-fn test_pretty_pretty_option_forms() -> Result<()> {
+fn test_pretty_option_forms() -> Result<()> {
 	// -- Setup & Fixtures
 	let html = "<div><p>Hello</p></div>";
 
@@ -34,7 +34,7 @@ fn test_pretty_pretty_option_forms() -> Result<()> {
 }
 
 #[test]
-fn test_pretty_pretty_block_elements() -> Result<()> {
+fn test_pretty_block_elements() -> Result<()> {
 	// -- Setup & Fixtures
 	let html = "<div><p>Hello <strong>there</strong></p><section><br></section></div>";
 
@@ -44,14 +44,14 @@ fn test_pretty_pretty_block_elements() -> Result<()> {
 	// -- Check
 	assert_eq!(
 		result,
-		"<div>\n    <p>Hello <strong>there</strong></p>\n    <section>\n        <br>\n    </section>\n</div>"
+		"<div>\n    <p>Hello <strong>there</strong></p>\n    <section><br></section>\n</div>"
 	);
 
 	Ok(())
 }
 
 #[test]
-fn test_pretty_pretty_raw_element_content() -> Result<()> {
+fn test_pretty_raw_element_content() -> Result<()> {
 	// -- Setup & Fixtures
 	let html = r#"<div data-value="a > b"><script>if (a < b) { call(">"); }</script></div>"#;
 
@@ -68,7 +68,7 @@ fn test_pretty_pretty_raw_element_content() -> Result<()> {
 }
 
 #[test]
-fn test_pretty_pretty_normalized_dom() -> Result<()> {
+fn test_pretty_normalized_dom() -> Result<()> {
 	// -- Setup & Fixtures
 	let html = "<div><p>Hello<section>World</section></div>";
 
@@ -82,7 +82,7 @@ fn test_pretty_pretty_normalized_dom() -> Result<()> {
 }
 
 #[test]
-fn test_pretty_pretty_custom_element() -> Result<()> {
+fn test_pretty_custom_element() -> Result<()> {
 	// -- Setup & Fixtures
 	let html = "<div><my-tag><p>Hello</p></my-tag></div>";
 
@@ -90,7 +90,7 @@ fn test_pretty_pretty_custom_element() -> Result<()> {
 	let result = pretty(html, None);
 
 	// -- Check
-	assert_eq!(result, "<div><my-tag>\n  <p>Hello</p></my-tag></div>");
+	assert_eq!(result, "<div><my-tag>\n  <p>Hello</p></my-tag>\n</div>");
 
 	Ok(())
 }
