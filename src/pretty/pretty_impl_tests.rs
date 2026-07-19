@@ -194,3 +194,19 @@ fn test_pretty_text_wrap_skips_block_children() -> Result<()> {
 
 	Ok(())
 }
+
+#[test]
+fn test_pretty_head_child_elements() -> Result<()> {
+	// -- Setup & Fixtures
+	let html = r#"<!doctype html><html><head><meta charset="utf-8"><title>Example</title><link rel="stylesheet" href="site.css"></head><body></body></html>"#;
+
+	// -- Exec
+	let result = pretty(html, None);
+
+	// -- Check
+	assert!(result.contains("\n  <head>\n    <meta "));
+	assert!(result.contains("\n    <title>Example</title>\n    <link "));
+	assert!(result.contains("\n  </head>\n"));
+
+	Ok(())
+}

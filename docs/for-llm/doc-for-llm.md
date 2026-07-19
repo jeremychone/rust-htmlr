@@ -10,6 +10,7 @@ pub fn pretty(html: &str, options: impl Into<PrettyOptions>) -> String
 ```
 
 - Parses and serializes HTML with block-level indentation.
+- Places direct child elements of `head` on separate indented lines.
 - Wraps long text in configured text-content elements when wrapping is enabled.
 - Accepts `None`, `Some(PrettyOptions)`, or a direct `PrettyOptions` value.
 

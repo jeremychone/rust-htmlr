@@ -12,6 +12,8 @@ The input is parsed and serialized as HTML. Documents beginning with a doctype o
 
 Block-level elements are placed on separate indented lines. Text wrapping applies only to supported text-content elements that do not contain block-level descendants.
 
+Direct child elements of `head`, including `meta`, `title`, and `link`, are placed on separate indented lines.
+
 ## Example
 
 ```rust

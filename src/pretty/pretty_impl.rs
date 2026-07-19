@@ -91,7 +91,7 @@ fn serialize_node(
 			}
 
 			let is_formatting = !indent.is_empty();
-			let is_block = is_formatting && is_block_element(tag_name);
+			let is_block = is_formatting && (is_block_element(tag_name) || is_head_child(node));
 			let is_void = is_void_element(tag_name);
 
 			if is_block {
@@ -322,6 +322,13 @@ fn contains_block_element(node: NodeRef<Node>) -> bool {
 		Node::Element(element) => is_block_element(element.name()) || contains_block_element(child),
 		_ => contains_block_element(child),
 	})
+}
+
+fn is_head_child(node: NodeRef<Node>) -> bool {
+	matches!(
+		node.parent().map(|parent| parent.value()),
+		Some(Node::Element(element)) if element.name().eq_ignore_ascii_case("head")
+	)
 }
 
 fn encode_attribute_value(value: &str) -> String {
