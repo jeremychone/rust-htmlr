@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Will output: 
 
-```
+```text
 === Slimmed version `slim(...)`:
 <body>
   <p>Hello & welcome!</p>

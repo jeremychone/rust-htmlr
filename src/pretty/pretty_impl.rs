@@ -2,17 +2,9 @@ use ego_tree::NodeRef;
 use html_escape::encode_double_quoted_attribute;
 use scraper::{Html, node::Node};
 
+use super::PrettyOptions;
+
 // region:    --- Types
-
-/// Options for the [`pretty`] function.
-#[derive(Clone, Copy, Debug)]
-pub struct PrettyOptions {
-	/// Number of spaces per indentation level.
-	pub ident: u8,
-
-	/// Maximum text-content line length, or `None` to disable wrapping.
-	pub wrap: Option<u16>,
-}
 
 #[derive(Debug)]
 enum InlinePart {
@@ -25,6 +17,7 @@ enum InlinePart {
 
 // endregion: --- Types
 
+#[doc = include_str!("../../docs/rustdoc/pretty/pretty.md")]
 pub fn pretty(html: &str, indent: impl Into<PrettyOptions>) -> String {
 	let options = indent.into();
 	let is_document = should_parse_document(html);
@@ -411,25 +404,6 @@ fn is_text_wrap_element(name: &str) -> bool {
 			| "h5" | "h6"
 	)
 }
-
-impl Default for PrettyOptions {
-	fn default() -> Self {
-		Self {
-			ident: 2,
-			wrap: Some(80),
-		}
-	}
-}
-
-// region:    --- Froms
-
-impl From<Option<PrettyOptions>> for PrettyOptions {
-	fn from(options: Option<PrettyOptions>) -> Self {
-		options.unwrap_or_default()
-	}
-}
-
-// endregion: --- Froms
 
 // region:    --- Tests
 
