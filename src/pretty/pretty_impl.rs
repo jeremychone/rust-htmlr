@@ -95,6 +95,9 @@ fn serialize_node(
 			let is_void = is_void_element(tag_name);
 
 			if is_block {
+				if tag_name.eq_ignore_ascii_case("body") && follows_head_element(node) {
+					output.push('\n');
+				}
 				start_block(output, depth, indent);
 			}
 
@@ -329,6 +332,21 @@ fn is_head_child(node: NodeRef<Node>) -> bool {
 		node.parent().map(|parent| parent.value()),
 		Some(Node::Element(element)) if element.name().eq_ignore_ascii_case("head")
 	)
+}
+
+fn follows_head_element(node: NodeRef<Node>) -> bool {
+	let mut sibling = node.prev_sibling();
+
+	while let Some(previous) = sibling {
+		match previous.value() {
+			Node::Element(element) => return element.name().eq_ignore_ascii_case("head"),
+			Node::Text(text) if text.trim().is_empty() => {}
+			_ => return false,
+		}
+		sibling = previous.prev_sibling();
+	}
+
+	false
 }
 
 fn encode_attribute_value(value: &str) -> String {

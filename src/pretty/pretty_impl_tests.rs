@@ -210,3 +210,21 @@ fn test_pretty_head_child_elements() -> Result<()> {
 
 	Ok(())
 }
+
+#[test]
+fn test_pretty_blank_line_between_head_and_body() -> Result<()> {
+	// -- Setup & Fixtures
+	let html =
+		"<!doctype html><html><head><title>Example</title></head><body><main>Content</main></body></html>";
+
+	// -- Exec
+	let result = pretty(html, None);
+
+	// -- Check
+	assert_eq!(
+		result,
+		"<!DOCTYPE html>\n<html>\n  <head>\n    <title>Example</title>\n  </head>\n\n  <body>\n    <main>Content</main>\n  </body>\n</html>"
+	);
+
+	Ok(())
+}
