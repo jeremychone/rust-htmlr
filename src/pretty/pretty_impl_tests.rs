@@ -9,9 +9,11 @@ fn test_pretty_options_default() -> Result<()> {
 
 	// -- Exec
 	let indent = options.ident;
+	let wrap = options.wrap;
 
 	// -- Check
 	assert_eq!(indent, 2);
+	assert_eq!(wrap, Some(80));
 
 	Ok(())
 }
@@ -22,8 +24,20 @@ fn test_pretty_option_forms() -> Result<()> {
 	let html = "<div><p>Hello</p></div>";
 
 	// -- Exec
-	let direct = pretty(html, PrettyOptions { ident: 4 });
-	let optional = pretty(html, Some(PrettyOptions { ident: 4 }));
+	let direct = pretty(
+		html,
+		PrettyOptions {
+			ident: 4,
+			..Default::default()
+		},
+	);
+	let optional = pretty(
+		html,
+		Some(PrettyOptions {
+			ident: 4,
+			..Default::default()
+		}),
+	);
 	let defaulted = pretty(html, None);
 
 	// -- Check
@@ -39,7 +53,13 @@ fn test_pretty_block_elements() -> Result<()> {
 	let html = "<div><p>Hello <strong>there</strong></p><section><br></section></div>";
 
 	// -- Exec
-	let result = pretty(html, PrettyOptions { ident: 4 });
+	let result = pretty(
+		html,
+		PrettyOptions {
+			ident: 4,
+			..Default::default()
+		},
+	);
 
 	// -- Check
 	assert_eq!(
@@ -91,6 +111,86 @@ fn test_pretty_custom_element() -> Result<()> {
 
 	// -- Check
 	assert_eq!(result, "<div><my-tag>\n  <p>Hello</p></my-tag>\n</div>");
+
+	Ok(())
+}
+
+#[test]
+fn test_pretty_text_wrap_long_content() -> Result<()> {
+	// -- Setup & Fixtures
+	let text = vec!["word"; 25].join(" ");
+	let html = format!("<p>{text}</p>");
+	let options = PrettyOptions {
+		ident: 2,
+		wrap: Some(40),
+	};
+
+	// -- Exec
+	let result = pretty(&html, options);
+
+	// -- Check
+	let lines = result.lines().collect::<Vec<_>>();
+	assert_eq!(lines.first(), Some(&"<p>"));
+	assert_eq!(lines.last(), Some(&"</p>"));
+	assert!(lines[1..lines.len() - 1].iter().all(|line| line.trim_start().chars().count() <= 40));
+
+	Ok(())
+}
+
+#[test]
+fn test_pretty_text_wrap_inline_children() -> Result<()> {
+	// -- Setup & Fixtures
+	let html = "<p>First words followed by <strong>important inline content that remains marked up</strong> and more words.</p>";
+	let options = PrettyOptions {
+		ident: 2,
+		wrap: Some(30),
+	};
+
+	// -- Exec
+	let result = pretty(html, options);
+
+	// -- Check
+	assert!(result.starts_with("<p>\n  "));
+	assert!(result.contains("<strong>"));
+	assert!(result.contains("</strong>"));
+	assert!(result.ends_with("\n</p>"));
+
+	Ok(())
+}
+
+#[test]
+fn test_pretty_text_wrap_disabled() -> Result<()> {
+	// -- Setup & Fixtures
+	let html = "<p>This text is deliberately longer than a small wrapping width but wrapping is disabled.</p>";
+	let options = PrettyOptions {
+		ident: 2,
+		wrap: None,
+	};
+
+	// -- Exec
+	let result = pretty(html, options);
+
+	// -- Check
+	assert_eq!(result, html);
+
+	Ok(())
+}
+
+#[test]
+fn test_pretty_text_wrap_skips_block_children() -> Result<()> {
+	// -- Setup & Fixtures
+	let text = vec!["word"; 25].join(" ");
+	let html = format!("<blockquote><div>{text}</div></blockquote>");
+	let options = PrettyOptions {
+		ident: 2,
+		wrap: Some(20),
+	};
+
+	// -- Exec
+	let result = pretty(&html, options);
+
+	// -- Check
+	assert_eq!(result, format!("<blockquote>\n  <div>{text}</div>\n</blockquote>"));
 
 	Ok(())
 }

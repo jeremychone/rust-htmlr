@@ -3,6 +3,16 @@
 
 ## Functions
 
+### pretty
+
+```rust
+pub fn pretty(html: &str, options: impl Into<PrettyOptions>) -> String
+```
+
+- Parses and serializes HTML with block-level indentation.
+- Wraps long text in configured text-content elements when wrapping is enabled.
+- Accepts `None`, `Some(PrettyOptions)`, or a direct `PrettyOptions` value.
+
 ### slim
 
 ```rust
@@ -93,6 +103,20 @@ pub struct SlimOptions { /* fields */ }
 - `SlimOptions::from_indent(indent: usize) -> Self` — sets indentation.
 - `fn with_indent(self, indent: usize) -> Self`
 - `fn with_preserve_images(self, preserve: bool) -> Self`
+
+### PrettyOptions
+
+```rust
+pub struct PrettyOptions {
+    pub ident: u8,
+    pub wrap: Option<u16>,
+}
+```
+
+- `ident`: spaces per indentation level, defaults to `2`.
+- `wrap`: maximum text-content line length, defaults to `Some(80)`. Set to `None` to disable wrapping.
+- Wrapping applies to `p`, `li`, `dt`, `dd`, `figcaption`, `caption`, `summary`, `blockquote`, and heading elements.
+- Elements with block-level descendants are not text-wrapped.
 
 ### HtmlContent
 
