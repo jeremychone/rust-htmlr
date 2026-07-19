@@ -199,63 +199,7 @@ impl From<Option<PrettyOptions>> for PrettyOptions {
 // region:    --- Tests
 
 #[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn pretty_defaults_to_two_spaces() {
-		let options = PrettyOptions::from(None);
-
-		assert_eq!(options.ident, 2);
-	}
-
-	#[test]
-	fn pretty_accepts_all_option_forms() {
-		let html = "<div><p>Hello</p></div>";
-		let direct = pretty(html, PrettyOptions { ident: 4 });
-		let optional = pretty(html, Some(PrettyOptions { ident: 4 }));
-		let defaulted = pretty(html, None);
-
-		assert_eq!(direct, optional);
-		assert!(defaulted.contains("<p>Hello</p>"));
-	}
-
-	#[test]
-	fn pretty_indents_block_elements_without_slimming() {
-		let html = "<div><p>Hello <strong>there</strong></p><section><br></section></div>";
-
-		assert_eq!(
-			pretty(html, PrettyOptions { ident: 4 }),
-			"<div>\n    <p>Hello <strong>there</strong></p>\n    <section>\n        <br>\n    </section>\n</div>"
-		);
-	}
-
-	#[test]
-	fn pretty_preserves_tag_attributes_and_raw_element_content() {
-		let html = r#"<div data-value="a > b"><script>if (a < b) { call(">"); }</script></div>"#;
-
-		assert_eq!(
-			pretty(html, None),
-			"<div data-value=\"a > b\">\n  <script>if (a < b) { call(\">\"); }</script>\n</div>"
-		);
-	}
-
-	#[test]
-	fn pretty_formats_the_normalized_dom() {
-		let html = "<div><p>Hello<section>World</section></div>";
-
-		assert_eq!(
-			pretty(html, None),
-			"<div>\n  <p>Hello</p>\n  <section>World</section>\n</div>"
-		);
-	}
-
-	#[test]
-	fn pretty_closes_custom_elements() {
-		let html = "<div><my-tag><p>Hello</p></my-tag></div>";
-
-		assert_eq!(pretty(html, None), "<div><my-tag>\n  <p>Hello</p></my-tag></div>");
-	}
-}
+#[path = "pretty_impl_tests.rs"]
+mod tests;
 
 // endregion: --- Tests
