@@ -22,7 +22,7 @@ pub fn md_to_html(md: &str, options: impl Into<MdToHtmlOptions>) -> Result<Strin
 // region:    --- Tests
 
 #[cfg(test)]
-#[path = "to_html_impl_tests.rs"]
-mod tests;
+#[path = "md_to_html_impl_tests.rs"]
+mod md_to_html_impl_tests;
 
 // endregion: --- Tests
