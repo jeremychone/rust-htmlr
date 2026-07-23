@@ -255,3 +255,37 @@ fn test_pretty_pre_code_starts_on_new_line() -> Result<()> {
 
 	Ok(())
 }
+
+#[test]
+fn test_pretty_preserves_escaped_html_text() -> Result<()> {
+	// -- Setup & Fixtures
+	let html = "<div>&lt;strong&gt;Safe &amp; sound&lt;/strong&gt;</div>";
+
+	// -- Exec
+	let result = pretty(html, None);
+
+	// -- Check
+	assert_eq!(result, html);
+
+	Ok(())
+}
+
+#[test]
+fn test_pretty_preserves_escaped_html_text_when_wrapping() -> Result<()> {
+	// -- Setup & Fixtures
+	let html = "<p>&lt;strong&gt;This escaped HTML remains text while its long content is wrapped safely&lt;/strong&gt;</p>";
+	let options = PrettyOptions {
+		ident: 2,
+		wrap: Some(30),
+	};
+
+	// -- Exec
+	let result = pretty(html, options);
+
+	// -- Check
+	assert!(result.contains("&lt;strong&gt;"));
+	assert!(result.contains("&lt;/strong&gt;"));
+	assert!(!result.contains("<strong>"));
+
+	Ok(())
+}

@@ -1,5 +1,5 @@
 use ego_tree::NodeRef;
-use html_escape::encode_double_quoted_attribute;
+use html_escape::{encode_double_quoted_attribute, encode_text};
 use scraper::{Html, node::Node};
 
 use super::PrettyOptions;
@@ -78,7 +78,11 @@ fn serialize_node(
 		}
 		Node::Text(text) => {
 			if !text.trim().is_empty() {
-				output.push_str(text);
+				if is_raw_text_parent(node) {
+					output.push_str(text);
+				} else {
+					output.push_str(&encode_text(text as &str));
+				}
 			}
 		}
 		Node::Element(element) => {
@@ -189,7 +193,13 @@ fn collect_inline_parts(node: NodeRef<Node>, parts: &mut Vec<InlinePart>) {
 			value.push_str("-->");
 			parts.push(InlinePart::Markup(value));
 		}
-		Node::Text(text) => push_text_parts(text, parts),
+		Node::Text(text) => {
+			if is_raw_text_parent(node) {
+				parts.push(InlinePart::Markup(text.to_string()));
+			} else {
+				push_text_parts(text, parts);
+			}
+		}
 		Node::Element(element) => {
 			let mut opening = String::from("<");
 			opening.push_str(element.name());
@@ -309,7 +319,7 @@ fn wrap_inline_parts(parts: Vec<InlinePart>, width: usize) -> Vec<String> {
 						lines.push(core::mem::take(&mut line));
 						line_width = 0;
 					}
-					line.push(character);
+					line.push_str(&encode_text(character.encode_utf8(&mut [0; 4])));
 					line_width += 1;
 				}
 			}
@@ -332,9 +342,8 @@ fn contains_block_element(node: NodeRef<Node>) -> bool {
 }
 
 fn has_direct_code_child(node: NodeRef<Node>) -> bool {
-	node.children().any(
-		|child| matches!(child.value(), Node::Element(element) if element.name().eq_ignore_ascii_case("code")),
-	)
+	node.children()
+		.any(|child| matches!(child.value(), Node::Element(element) if element.name().eq_ignore_ascii_case("code")))
 }
 
 fn is_head_child(node: NodeRef<Node>) -> bool {
@@ -357,6 +366,17 @@ fn follows_head_element(node: NodeRef<Node>) -> bool {
 	}
 
 	false
+}
+
+fn is_raw_text_parent(node: NodeRef<Node>) -> bool {
+	matches!(
+		node.parent().map(|parent| parent.value()),
+		Some(Node::Element(element))
+			if matches!(
+				element.name().to_ascii_lowercase().as_str(),
+				"script" | "style" | "xmp" | "iframe" | "noembed" | "noframes" | "plaintext"
+			)
+	)
 }
 
 fn encode_attribute_value(value: &str) -> String {
