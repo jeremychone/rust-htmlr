@@ -48,6 +48,32 @@ fn test_md_to_html_code_block_escapes_content_by_default() -> Result<()> {
 }
 
 #[test]
+fn test_md_to_html_code_block_escapes_content_when_enabled() -> Result<()> {
+	// -- Setup & Fixtures
+	let md = r#"```html
+<strong>Hello</strong> World
+
+```"#;
+
+	// -- Exec
+	let html = md_to_html(md, None)?;
+
+	// -- Check
+	assert_eq!(
+		html,
+		r#"<pre>
+<code class="language-html">
+&lt;strong&gt;Hello&lt;/strong&gt; World
+
+</code>
+</pre>
+"#
+	);
+
+	Ok(())
+}
+
+#[test]
 fn test_md_to_html_code_block_allows_unescaped_content() -> Result<()> {
 	// -- Setup & Fixtures
 	let md = r#"```html
