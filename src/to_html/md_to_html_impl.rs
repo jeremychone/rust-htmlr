@@ -40,7 +40,7 @@ pub fn md_to_html(md: &str, options: impl Into<MdToHtmlOptions>) -> Result<Strin
 				Event::Html(if is_mermaid {
 					"</pre>\n".into()
 				} else {
-					"</code>\n</pre>\n".into()
+					"</code></pre>\n".into()
 				})
 			} else {
 				Event::End(TagEnd::CodeBlock)
@@ -58,17 +58,17 @@ pub fn md_to_html(md: &str, options: impl Into<MdToHtmlOptions>) -> Result<Strin
 
 fn code_block_opening(kind: &CodeBlockKind<'_>, is_mermaid: bool) -> pulldown_cmark::CowStr<'static> {
 	if is_mermaid {
-		return "<pre class=\"mermaid\">\n".into();
+		return "<pre class=\"mermaid\">".into();
 	}
 
 	let opening = match kind {
-		CodeBlockKind::Indented => "<pre>\n<code>\n".to_string(),
+		CodeBlockKind::Indented => "<pre>\n<code>".to_string(),
 		CodeBlockKind::Fenced(info) => {
 			if let Some(language) = info.split_whitespace().next() {
 				let language = encode_double_quoted_attribute(language);
-				format!("<pre>\n<code class=\"language-{language}\">\n")
+				format!("<pre>\n<code class=\"language-{language}\">")
 			} else {
-				"<pre>\n<code>\n".to_string()
+				"<pre>\n<code>".to_string()
 			}
 		}
 	};

@@ -1,4 +1,5 @@
 use super::*;
+use crate::PrettyOptions;
 
 type Result<T> = core::result::Result<T, Box<dyn std::error::Error>>; // For tests.
 
@@ -37,10 +38,8 @@ fn test_md_to_html_code_block_escapes_content_by_default() -> Result<()> {
 	assert_eq!(
 		html,
 		r#"<pre>
-<code class="language-html">
-&lt;div data-value="a&amp;b"&gt;content&lt;/div&gt;
-</code>
-</pre>
+<code class="language-html">&lt;div data-value="a&amp;b"&gt;content&lt;/div&gt;
+</code></pre>
 "#
 	);
 
@@ -62,11 +61,9 @@ fn test_md_to_html_code_block_escapes_content_when_enabled() -> Result<()> {
 	assert_eq!(
 		html,
 		r#"<pre>
-<code class="language-html">
-&lt;strong&gt;Hello&lt;/strong&gt; World
+<code class="language-html">&lt;strong&gt;Hello&lt;/strong&gt; World
 
-</code>
-</pre>
+</code></pre>
 "#
 	);
 
@@ -91,10 +88,8 @@ fn test_md_to_html_code_block_allows_unescaped_content() -> Result<()> {
 	assert_eq!(
 		html,
 		r#"<pre>
-<code class="language-html">
-<div>content</div>
-</code>
-</pre>
+<code class="language-html"><div>content</div>
+</code></pre>
 "#
 	);
 
@@ -122,16 +117,14 @@ A[One] --> B[Two & Three]
 	// -- Check
 	assert_eq!(
 		escaped_html,
-		r#"<pre class="mermaid">
-graph TD
+		r#"<pre class="mermaid">graph TD
 A[One] --&gt; B[Two &amp; Three]
 </pre>
 "#
 	);
 	assert_eq!(
 		unescaped_html,
-		r#"<pre class="mermaid">
-graph TD
+		r#"<pre class="mermaid">graph TD
 A[One] --> B[Two & Three]
 </pre>
 "#
@@ -159,12 +152,43 @@ fn test_md_to_html_unescaped_code_block_is_wrapped_in_pre_and_code() -> Result<(
 	assert_eq!(
 		html,
 		r#"<pre>
-<code class="language-html">
-<strong>Hello</strong> World
+<code class="language-html"><strong>Hello</strong> World
 
-</code>
-</pre>
+</code></pre>
 "#
+	);
+
+	Ok(())
+}
+
+#[test]
+fn test_to_html_md_to_html_fenced_rust_pretty_layout() -> Result<()> {
+	// -- Setup & Fixtures
+	let md = r#"```rust
+let some = "text";
+if some == "text" {
+	println!("hello {some}");
+}
+```"#;
+	let options = PrettyOptions {
+		ident: 4,
+		..Default::default()
+	};
+
+	// -- Exec
+	let html = md_to_html(md, None)?;
+	let result = crate::pretty(&format!("<div>{html}</div>"), options);
+
+	// -- Check
+	assert_eq!(
+		result,
+		r#"<div>
+    <pre><code class="language-rust">let some = "text";
+if some == "text" {
+	println!("hello {some}");
+}
+</code></pre>
+</div>"#
 	);
 
 	Ok(())

@@ -244,12 +244,10 @@ fn test_pretty_pre_code_starts_on_new_line() -> Result<()> {
 	assert_eq!(
 		result,
 		r#"<div>
-  <pre>
-<code class="language-mermaid">graph TD
+  <pre><code class="language-mermaid">graph TD
     Start --&gt; Review
     Review --&gt; Complete
-</code>
-  </pre>
+</code></pre>
 </div>"#
 	);
 
