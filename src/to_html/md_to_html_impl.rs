@@ -3,6 +3,7 @@ use crate::Result;
 use html_escape::{encode_double_quoted_attribute, encode_text};
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag, TagEnd, html};
 
+#[doc = include_str!("../../docs/rustdoc/to_html/md_to_html.md")]
 pub fn md_to_html(md: &str, options: impl Into<MdToHtmlOptions>) -> Result<String> {
 	let opts = options.into();
 
