@@ -22,17 +22,9 @@ pub fn md_to_html(md: &str, options: impl Into<MdToHtmlOptions>) -> Result<Strin
 				CodeBlockKind::Fenced(info)
 					if info.split_whitespace().next() == Some("mermaid")
 			);
-			let customize =
-				!opts.code_block_html_escape_content
-					|| (is_mermaid && opts.code_block_mermaid_as_pre);
-
-			if customize {
-				custom_code_block_is_mermaid =
-					Some(is_mermaid && opts.code_block_mermaid_as_pre);
-				Event::Html(code_block_opening(&kind, is_mermaid && opts.code_block_mermaid_as_pre))
-			} else {
-				Event::Start(Tag::CodeBlock(kind))
-			}
+			custom_code_block_is_mermaid =
+				Some(is_mermaid && opts.code_block_mermaid_as_pre);
+			Event::Html(code_block_opening(&kind, is_mermaid && opts.code_block_mermaid_as_pre))
 		}
 		Event::Text(content) if custom_code_block_is_mermaid.is_some() => {
 			let content = if opts.code_block_html_escape_content {
@@ -47,7 +39,7 @@ pub fn md_to_html(md: &str, options: impl Into<MdToHtmlOptions>) -> Result<Strin
 				Event::Html(if is_mermaid {
 					"</pre>\n".into()
 				} else {
-					"</code></pre>\n".into()
+					"</code>\n</pre>\n".into()
 				})
 			} else {
 				Event::End(TagEnd::CodeBlock)
@@ -69,13 +61,13 @@ fn code_block_opening(kind: &CodeBlockKind<'_>, is_mermaid: bool) -> pulldown_cm
 	}
 
 	let opening = match kind {
-		CodeBlockKind::Indented => "<pre><code>".to_string(),
+		CodeBlockKind::Indented => "<pre>\n<code>\n".to_string(),
 		CodeBlockKind::Fenced(info) => {
 			if let Some(language) = info.split_whitespace().next() {
 				let language = encode_double_quoted_attribute(language);
-				format!("<pre><code class=\"language-{language}\">")
+				format!("<pre>\n<code class=\"language-{language}\">\n")
 			} else {
-				"<pre><code>".to_string()
+				"<pre>\n<code>\n".to_string()
 			}
 		}
 	};

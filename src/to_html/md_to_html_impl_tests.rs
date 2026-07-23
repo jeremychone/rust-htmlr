@@ -36,8 +36,11 @@ fn test_md_to_html_code_block_escapes_content_by_default() -> Result<()> {
 	// -- Check
 	assert_eq!(
 		html,
-		r#"<pre><code class="language-html">&lt;div data-value="a&amp;b"&gt;content&lt;/div&gt;
-</code></pre>
+		r#"<pre>
+<code class="language-html">
+&lt;div data-value="a&amp;b"&gt;content&lt;/div&gt;
+</code>
+</pre>
 "#
 	);
 
@@ -61,8 +64,11 @@ fn test_md_to_html_code_block_allows_unescaped_content() -> Result<()> {
 	// -- Check
 	assert_eq!(
 		html,
-		r#"<pre><code class="language-html"><div>content</div>
-</code></pre>
+		r#"<pre>
+<code class="language-html">
+<div>content</div>
+</code>
+</pre>
 "#
 	);
 
@@ -126,9 +132,12 @@ fn test_md_to_html_unescaped_code_block_is_wrapped_in_pre_and_code() -> Result<(
 	// -- Check
 	assert_eq!(
 		html,
-		r#"<pre><code class="language-html"><strong>Hello</strong> World
+		r#"<pre>
+<code class="language-html">
+<strong>Hello</strong> World
 
-</code></pre>
+</code>
+</pre>
 "#
 	);
 
