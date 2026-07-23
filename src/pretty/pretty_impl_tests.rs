@@ -246,8 +246,8 @@ fn test_pretty_pre_code_starts_on_new_line() -> Result<()> {
 		r#"<div>
   <pre>
 <code class="language-mermaid">graph TD
-    Start --> Review
-    Review --> Complete
+    Start --&gt; Review
+    Review --&gt; Complete
 </code>
   </pre>
 </div>"#
