@@ -116,6 +116,10 @@ fn serialize_node(
 				return;
 			}
 
+			if tag_name.eq_ignore_ascii_case("pre") && has_direct_code_child(node) {
+				output.push('\n');
+			}
+
 			if let Some(wrap) = options_wrap(indent, wrap, tag_name, node) {
 				let mut parts = Vec::new();
 				for child in node.children() {
@@ -325,6 +329,12 @@ fn contains_block_element(node: NodeRef<Node>) -> bool {
 		Node::Element(element) => is_block_element(element.name()) || contains_block_element(child),
 		_ => contains_block_element(child),
 	})
+}
+
+fn has_direct_code_child(node: NodeRef<Node>) -> bool {
+	node.children().any(
+		|child| matches!(child.value(), Node::Element(element) if element.name().eq_ignore_ascii_case("code")),
+	)
 }
 
 fn is_head_child(node: NodeRef<Node>) -> bool {

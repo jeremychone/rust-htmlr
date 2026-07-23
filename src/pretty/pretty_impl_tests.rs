@@ -228,3 +228,30 @@ fn test_pretty_blank_line_between_head_and_body() -> Result<()> {
 
 	Ok(())
 }
+
+#[test]
+fn test_pretty_pre_code_starts_on_new_line() -> Result<()> {
+	// -- Setup & Fixtures
+	let html = r#"<div><pre><code class="language-mermaid">graph TD
+    Start --> Review
+    Review --> Complete
+</code></pre></div>"#;
+
+	// -- Exec
+	let result = pretty(html, None);
+
+	// -- Check
+	assert_eq!(
+		result,
+		r#"<div>
+  <pre>
+<code class="language-mermaid">graph TD
+    Start --> Review
+    Review --> Complete
+</code>
+  </pre>
+</div>"#
+	);
+
+	Ok(())
+}
