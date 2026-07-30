@@ -16,7 +16,7 @@ Hello **world** and ~~removed~~."#;
 	// -- Check
 	assert_eq!(
 		html,
-		r#"<h1>Title</h1>
+		r#"<h1 id="title">Title</h1>
 <p>Hello <strong>world</strong> and <del>removed</del>.</p>
 "#
 	);
@@ -189,6 +189,27 @@ if some == "text" {
 }
 </code></pre>
 </div>"#
+	);
+
+	Ok(())
+}
+
+#[test]
+fn test_to_html_md_to_html_headings_include_normalized_ids() -> Result<()> {
+	// -- Setup & Fixtures
+	let md = r#"# Hello, **Rust**!
+
+##  Multiple   Spaces & Symbols  "#;
+
+	// -- Exec
+	let html = md_to_html(md, None)?;
+
+	// -- Check
+	assert_eq!(
+		html,
+		r#"<h1 id="hello-rust">Hello, <strong>Rust</strong>!</h1>
+<h2 id="multiple-spaces-symbols">Multiple   Spaces &amp; Symbols</h2>
+"#
 	);
 
 	Ok(())
