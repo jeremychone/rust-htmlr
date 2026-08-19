@@ -11,9 +11,12 @@ Converts an HTML string into Markdown. Uses the [htmd](https://crates.io/crates/
 ## Options
 
 `options`: Optional conversion configuration (implements `Into<ToMdOptions>`). When `None` is passed, the default options are applied, which correspond to:
+
 - `bullet_list_marker` set to `Dash` (list items start with `-`),
 - `ul_bullet_spacing` set to `1`,
 - `ol_number_spacing` set to `1`,
+- `title_as_h1` set to `true` (extracts `<title>` and prepends it as `# <title>`),
+- `shift_headings` set to `true` (shifts `<h1>`-`<h6>` by one level if title is extracted),
 - all other htmd options remain at their library defaults.
 
 ## Example
