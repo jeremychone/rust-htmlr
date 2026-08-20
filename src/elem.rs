@@ -11,6 +11,10 @@ pub struct Elem {
 }
 
 impl Elem {
+	pub fn attr(&self, name: &str) -> Option<&str> {
+		self.attrs.as_ref()?.get(name).map(String::as_str)
+	}
+
 	/// Creates a new `Elem` from a `scraper::ElementRef`.
 	pub(crate) fn from_element_ref(el_ref: scraper::ElementRef) -> Self {
 		let el = el_ref.value();
@@ -45,3 +49,49 @@ impl Elem {
 		}
 	}
 }
+
+// region:    --- Tests
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	type Result<T> = core::result::Result<T, Box<dyn std::error::Error>>;
+
+	#[test]
+	fn test_elem_attr_present_and_missing() -> Result<()> {
+		// -- Setup & Fixtures
+		let mut attrs = HashMap::new();
+		attrs.insert("href".to_string(), "https://example.com".to_string());
+		let elem = Elem {
+			tag: "a".to_string(),
+			attrs: Some(attrs),
+			text: None,
+			inner_html: None,
+		};
+
+		// -- Exec & Check
+		assert_eq!(elem.attr("href"), Some("https://example.com"));
+		assert_eq!(elem.attr("title"), None);
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_elem_attr_without_attributes() -> Result<()> {
+		// -- Setup & Fixtures
+		let elem = Elem {
+			tag: "p".to_string(),
+			attrs: None,
+			text: None,
+			inner_html: None,
+		};
+
+		// -- Exec & Check
+		assert_eq!(elem.attr("class"), None);
+
+		Ok(())
+	}
+}
+
+// endregion: --- Tests
